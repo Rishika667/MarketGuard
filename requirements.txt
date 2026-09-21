@@ -1,0 +1,10 @@
+# MarketGuard dependencies will be finalized during technical design and implementation.
+#
+# Initial technology direction:
+# pandas
+# numpy
+# duckdb
+# pyarrow
+# streamlit
+# plotly
+# pytest
