@@ -1,0 +1,58 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDEs
+.vscode/
+.idea/
+
+# Operating system
+.DS_Store
+Thumbs.db
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# Local databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Generated local data
+data/raw/*
+data/processed/*
+reports/generated/*
+
+# Keep sample data
+!data/sample/
+!data/sample/**
+
+# Credentials / keys
+*.pem
+*.key
+credentials.json
+secrets.json
