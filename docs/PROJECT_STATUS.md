@@ -2,90 +2,59 @@
 
 ## Current Stage
 
-Stage 0 — Specification and Repository Setup
+Stage 1 — MarketGuard Foundation + Automated Market-Data Pipeline
 
 ## Overall Status
 
-IN PROGRESS
+COMPLETE (Stage 1)
 
-## Project Phase
+## Stage 1 Completed
 
-Pre-implementation
+- [x] Repository/package foundation for ingestion pipeline
+- [x] Config-driven runtime/path/source system
+- [x] Reproducible security universe file (~150 equities)
+- [x] Source-adapter architecture + Yahoo Finance adapter implementation
+- [x] Raw immutable snapshot persistence (Parquet)
+- [x] Normalization into canonical market-data schema
+- [x] Corporate-action normalization (dividends/splits where available)
+- [x] Canonical persistence (Parquet) with rerun-safe upsert
+- [x] DuckDB analytical persistence refresh
+- [x] Structured JSON logging
+- [x] Ingestion run metadata/audit JSON output
+- [x] Basic ingestion pre-QC structural validation
+- [x] Rerunnable pipeline entrypoint command
+- [x] Unit/integration-style tests with mocked source behavior
+- [x] Documentation updates for implemented architecture/state
 
-## Completed
+## Stage 1 Runtime Verification
 
-- [x] MarketGuard project concept defined
-- [x] Business problem defined
-- [x] Project scope defined
-- [x] EOD operating model defined
-- [x] Data-quality dimensions defined
-- [x] QC control categories defined
-- [x] Exception workflow defined
-- [x] DQ scoring requirement defined
-- [x] Synthetic validation requirement defined
-- [x] Dashboard requirements defined
-- [x] Automation requirement defined
-- [x] Out-of-scope features defined
-- [x] AI development instructions created
-- [x] GitHub repository created
-- [x] Project specification created
+Latest full configured pipeline run (live source):
 
-## Not Yet Completed
+- Run ID: `20260921T195651Z_7653795f`
+- Universe size: 150
+- Status: `partial_success`
+- Canonical market rows ingested this run: 183,664
+- Canonical corporate-action rows: 14,711
+- Failures: 3 symbols (source-side empty/invalid payload)
 
-- [ ] Technical data-source selection
-- [ ] Exact universe methodology
-- [ ] Exact QC thresholds
-- [ ] Exact DQ scoring formula
-- [ ] Technical implementation architecture
-- [ ] Data ingestion implementation
-- [ ] Normalization implementation
-- [ ] QC engine
-- [ ] Exception engine
-- [ ] Dashboard
-- [ ] Automated reporting
-- [ ] Automated execution
-- [ ] Validation framework
-- [ ] Final documentation
+## Not Yet Completed (Planned for Stage 2+)
 
-## Current Working Area
-
-Repository and documentation setup.
-
-## Next Action
-
-Complete the remaining GitHub project setup, then begin the first
-GenSpark implementation stage.
-
-## Important Rule
-
-Do not rebuild completed work.
-
-Read:
-
-1. AGENTS.md
-2. docs/MARKETGUARD_SPEC.md
-3. docs/PROJECT_STATUS.md
-
-before making implementation changes.
+- [ ] Full QC rule engine
+- [ ] Reconciliation controls and discrepancy scoring
+- [ ] Exception lifecycle management model
+- [ ] DQ scoring methodology and outputs
+- [ ] Synthetic-error validation framework
+- [ ] Investigation/reporting dashboard
 
 ## Known Limitations
 
-Technical implementation decisions have not yet been finalized.
+- Public source symbol behavior may change over time; occasional symbol-level failures are expected.
+- Current adapter implementation is Yahoo-first; architecture supports additional adapters, but they are not implemented yet.
 
-## GenSpark Credit Safety
+## Next Recommended Stage
 
-All meaningful completed work must be saved to the repository.
-
-Before stopping a development session:
-
-- save completed work
-- run relevant tests
-- update this file
-- record incomplete work
-- record known issues
-- record the next action
-- commit completed work
+**STAGE 2 — QC ENGINE + EXCEPTIONS + DQ SCORING + SYNTHETIC-ERROR VALIDATION**
 
 ## Last Updated
 
-2026-09-22
+2026-09-21
