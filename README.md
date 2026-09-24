@@ -1,60 +1,70 @@
 # MarketGuard
 
-Automated market-data quality, reconciliation and exception-intelligence platform for EOD financial market data.
+Automated EOD market-data quality, reconciliation, exception-intelligence, and scoring platform.
 
-## Stage 1 (Implemented)
+## Implemented Capabilities
 
-Stage 1 delivers the MarketGuard ingestion foundation:
+- Reproducible 150-security universe (`100 US + 50 IN`)
+- Config-driven EOD ingestion with source-adapter architecture
+- Raw immutable snapshots + canonical normalized datasets (Parquet)
+- Corporate-action ingestion (dividends/splits where available)
+- Ingestion-time structural pre-QC validation
+- Full QC rule engine (R01–R12)
+- Exception generation with evidence, severity, and lifecycle ledger
+- Deterministic DQ scoring (overall + 5 dimensions)
+- Synthetic-error validation with rule-level detection metrics
+- Automated quality report generation (Markdown)
+- Dashboard-ready dataset generation (Parquet views)
+- DuckDB analytical table refresh
+- Scheduled/dispatch automation via GitHub Actions
 
-- Reproducible security universe (~150 securities: 100 US + 50 IN)
-- Config-driven EOD ingestion pipeline
-- Source-adapter architecture (Yahoo Finance adapter implemented)
-- Raw immutable snapshot storage (Parquet)
-- Canonical normalized dataset generation (Parquet)
-- Corporate-actions ingestion (dividends/splits where available)
-- DuckDB analytical persistence
-- Structured logging and run metadata
-- Basic ingestion-time structural validation (pre-QC)
-- Rerunnable/idempotent canonical upserts
-- Automated tests for core Stage 1 components
-
-## Repository Layout
-
-- `configs/pipeline.yaml` — Stage 1 runtime/source/path configuration
-- `configs/security_universe.csv` — reproducible 150-security universe
-- `src/marketguard/` — pipeline, adapters, normalization, validation, storage
-- `tests/` — unit/integration-style tests (mocked source for repeatability)
-- `docs/` — specification, architecture, status, changelog, dictionary
-
-## Data Source Implemented
+## Data Source
 
 - `yahoo_finance` (`yfinance`) for EOD OHLCV and corporate actions
 
-## Quick Start
+## Core Commands
+
+Install:
 
 ```bash
 python -m pip install -r requirements.txt
+```
+
+Run ingestion only:
+
+```bash
 PYTHONPATH=src python -m marketguard.pipeline.eod_ingestion --config configs/pipeline.yaml
 ```
 
-## Test Command
+Run full workflow (canonical data -> QC -> exceptions -> scoring -> report -> dashboard data):
+
+```bash
+PYTHONPATH=src python -m marketguard.pipeline.run_marketguard --config configs/pipeline.yaml
+```
+
+Run full workflow with fresh ingestion first:
+
+```bash
+PYTHONPATH=src python -m marketguard.pipeline.run_marketguard --config configs/pipeline.yaml --run-ingestion
+```
+
+Run tests:
 
 ```bash
 pytest -q
 ```
 
-## Stage 1 Output Artifacts
+## Main Output Artifacts
 
-- Raw market snapshots: `data/raw/yahoo_finance/market_data/run_<run_id>.parquet`
-- Raw corporate actions: `data/raw/yahoo_finance/corporate_actions/run_<run_id>.parquet`
+- Raw snapshots: `data/raw/yahoo_finance/...`
 - Canonical market data: `data/processed/canonical/canonical_market_data.parquet`
 - Canonical corporate actions: `data/processed/canonical/canonical_corporate_actions.parquet`
+- QC exceptions + metrics + scores: `data/processed/quality/`
+- Dashboard datasets: `data/processed/dashboard/`
+- Quality report: `reports/generated/quality_report_<quality_run_id>.md`
 - DuckDB: `data/processed/marketguard.duckdb`
-- Run metadata: `data/processed/run_metadata/run_<run_id>.json`
-- Logs: `logs/marketguard_pipeline.log`
 
 ## Notes
 
+- Use outputs as **observed source reliability** signals, not proof of absolute correctness.
 - No secrets are committed.
-- Pipeline source/auth can be swapped later by implementing additional adapters and updating config.
-- Stage 2 will build on Stage 1 canonical outputs for QC/scoring/exception intelligence.

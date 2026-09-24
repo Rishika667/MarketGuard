@@ -2,59 +2,60 @@
 
 ## Current Stage
 
-Stage 1 — MarketGuard Foundation + Automated Market-Data Pipeline
+Integrated Build — Ingestion + QC + Exceptions + DQ Scoring + Synthetic Validation + Reporting + Dashboard Data Prep
 
 ## Overall Status
 
-COMPLETE (Stage 1)
+IN PROGRESS (major core implementation completed in this session)
 
-## Stage 1 Completed
+## Completed
 
-- [x] Repository/package foundation for ingestion pipeline
-- [x] Config-driven runtime/path/source system
-- [x] Reproducible security universe file (~150 equities)
-- [x] Source-adapter architecture + Yahoo Finance adapter implementation
+- [x] Reproducible 150-security universe (100 US + 50 IN)
+- [x] Config-driven ingestion architecture with adapter abstraction
+- [x] Yahoo Finance EOD OHLCV + corporate-action ingestion
 - [x] Raw immutable snapshot persistence (Parquet)
-- [x] Normalization into canonical market-data schema
-- [x] Corporate-action normalization (dividends/splits where available)
-- [x] Canonical persistence (Parquet) with rerun-safe upsert
-- [x] DuckDB analytical persistence refresh
-- [x] Structured JSON logging
-- [x] Ingestion run metadata/audit JSON output
-- [x] Basic ingestion pre-QC structural validation
-- [x] Rerunnable pipeline entrypoint command
-- [x] Unit/integration-style tests with mocked source behavior
-- [x] Documentation updates for implemented architecture/state
+- [x] Canonical market/corporate-action dataset generation (Parquet)
+- [x] DuckDB canonical table refresh
+- [x] Structured logging + ingestion run metadata
+- [x] Ingestion pre-QC structural validation
+- [x] QC rule engine R01-R12
+- [x] Exception generation with severity/evidence fields
+- [x] Exception lifecycle ledger (OPEN → INVESTIGATING → RESOLVED / OVERRIDDEN)
+- [x] DQ scoring (overall 0-100 + five dimensions)
+- [x] Synthetic defect-injection validation with detection metrics
+- [x] Automated markdown quality report generation
+- [x] Dashboard-ready parquet data outputs
+- [x] End-to-end orchestration command (`run_marketguard`)
+- [x] GitHub Actions automation workflow (tests + scheduled/manual run)
+- [x] Expanded tests for QC/exceptions/scoring/synthetic/full workflow
 
-## Stage 1 Runtime Verification
+## Verification Results (This Session)
 
-Latest full configured pipeline run (live source):
+- `pytest -q` → **9 passed**
+- Full workflow run command executed successfully:
+  - `PYTHONPATH=src python -m marketguard.pipeline.run_marketguard --config configs/pipeline.yaml`
+  - Produced QC, scoring, report, and dashboard output artifacts from real canonical data
 
-- Run ID: `20260921T195651Z_7653795f`
-- Universe size: 150
-- Status: `partial_success`
-- Canonical market rows ingested this run: 183,664
-- Canonical corporate-action rows: 14,711
-- Failures: 3 symbols (source-side empty/invalid payload)
+## Current Runtime Snapshot
 
-## Not Yet Completed (Planned for Stage 2+)
+Latest quality run summary (live canonical data):
 
-- [ ] Full QC rule engine
-- [ ] Reconciliation controls and discrepancy scoring
-- [ ] Exception lifecycle management model
-- [ ] DQ scoring methodology and outputs
-- [ ] Synthetic-error validation framework
-- [ ] Investigation/reporting dashboard
+- Quality run ID: `Q20260922T200430Z`
+- Overall DQ score: `97.1929`
+- Exceptions generated: `23,434`
+- Exception ledger rows: `23,434`
 
 ## Known Limitations
 
-- Public source symbol behavior may change over time; occasional symbol-level failures are expected.
-- Current adapter implementation is Yahoo-first; architecture supports additional adapters, but they are not implemented yet.
+- Source-specific symbol availability can change over time (public/free source behavior).
+- Cross-source discrepancy rule (R07) requires multiple active sources for same observations; currently the default live source configuration is Yahoo-only.
+- Portfolio prototype remains non-institutional by design (public-source constraints).
 
-## Next Recommended Stage
+## Next Recommended Action
 
-**STAGE 2 — QC ENGINE + EXCEPTIONS + DQ SCORING + SYNTHETIC-ERROR VALIDATION**
+- Expand to second active source adapter for stronger live cross-source reconciliation coverage.
+- Build interactive Streamlit dashboard UI layer on top of prepared dashboard parquet datasets.
 
 ## Last Updated
 
-2026-09-21
+2026-09-22

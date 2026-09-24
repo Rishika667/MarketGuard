@@ -1,38 +1,36 @@
 # MarketGuard — Changelog
 
+## 2026-09-22
+
+### Added
+
+- Full QC engine (`src/marketguard/qc_engine.py`) implementing R01–R12
+- Exception lifecycle management (`src/marketguard/exception_manager.py`)
+- DQ scoring module (`src/marketguard/scoring_engine.py`)
+- Synthetic defect-injection validation (`src/marketguard/synthetic_validation.py`)
+- Automated markdown quality reporting (`src/marketguard/reporting.py`)
+- Dashboard dataset preparation (`src/marketguard/dashboard_prep.py`)
+- End-to-end orchestration command (`src/marketguard/pipeline/run_marketguard.py`)
+- GitHub Actions workflow for tests + scheduled/manual runs (`.github/workflows/marketguard_eod.yml`)
+- Expanded tests for QC/exceptions/scoring/synthetic/full workflow
+
+### Changed
+
+- Updated README to reflect full executable workflow beyond ingestion foundation
+- Updated architecture, QC rules, data dictionary, and project status documentation
+
+### Verified
+
+- `pytest -q` → **9 passed**
+- `PYTHONPATH=src python -m marketguard.pipeline.run_marketguard --config configs/pipeline.yaml` executed successfully on canonical data
+
 ## 2026-09-21
 
 ### Added
 
-- Stage 1 implementation package under `src/marketguard/`
-  - config loader
-  - security-universe loader
-  - adapter abstraction
-  - Yahoo Finance adapter
-  - normalization layer
-  - ingestion pre-QC validation
-  - raw/canonical/metadata persistence
-  - pipeline entrypoint
+- Stage 1 ingestion foundation package under `src/marketguard/`
 - Reproducible universe file `configs/security_universe.csv` (150 securities)
-- Stage 1 configuration file `configs/pipeline.yaml`
-- Canonical + corporate-action schema implementation
-- DuckDB canonical table refresh integration
-- Structured JSON logging output
-- Run metadata output per ingestion run
-- Test suite for Stage 1 core behavior under `tests/`
-
-### Changed
-
-- Updated `requirements.txt` with runtime/test dependencies
-- Updated `README.md` with Stage 1 run/test usage and outputs
-- Updated `docs/ARCHITECTURE.md` and `docs/DATA_DICTIONARY.md` to implemented state
-- Updated `docs/PROJECT_STATUS.md` to reflect Stage 1 completion
-
-### Verified
-
-- `pytest -q` → **5 passed**
-- Live pipeline run completed with partial-success handling for symbol-level source issues
-
-### Notes
-
-- Source-level occasional empty payloads are surfaced as explicit run failures in metadata/logs (not silently masked).
+- Stage 1 runtime config `configs/pipeline.yaml`
+- Canonical + corporate-action ingestion and persistence outputs
+- Ingestion run metadata and structured logs
+- Initial Stage 1 test suite

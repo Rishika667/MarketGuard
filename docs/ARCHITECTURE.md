@@ -1,71 +1,65 @@
 # MarketGuard — Architecture
 
-## Current Stage
+## Current Implementation Status
 
-Stage 1 — Foundation + Automated Market-Data Pipeline
+Foundation + QC + Exceptions + DQ Scoring + Synthetic Validation + Reporting + Dashboard Data Prep
 
-## Stage 1 Implemented Flow
+## End-to-End Flow
 
-Configured EOD source
-→ source adapter
-→ raw immutable snapshots (Parquet)
+Configured source(s)
+→ ingestion adapters
+→ raw immutable snapshots
 → normalization
-→ ingestion-time pre-QC structural validation
-→ canonical upsert (Parquet)
-→ DuckDB refresh
-→ run metadata + structured logs
+→ canonical market/corporate-action datasets
+→ QC engine (R01-R12)
+→ severity/evidence
+→ exceptions + lifecycle ledger
+→ DQ scoring (overall + dimensions)
+→ synthetic validation
+→ automated quality report
+→ dashboard-ready datasets
 
-## Stage 1 Components
+## Implemented Modules
 
-### 1) Configuration Layer
-- `configs/pipeline.yaml`
-- Loaded by `src/marketguard/config.py`
-- Controls source, paths, and runtime window parameters
-
-### 2) Security Universe
-- `configs/security_universe.csv`
-- 150 active equities (100 US, 50 India)
-- Loaded/validated by `src/marketguard/universe.py`
-
-### 3) Source Adapter Layer
-- Interface: `src/marketguard/adapters/base.py`
-- Factory: `src/marketguard/adapters/factory.py`
-- Implemented adapter: `src/marketguard/adapters/yahoo_finance.py`
-
-### 4) Normalization Layer
+### Ingestion Foundation
+- `src/marketguard/config.py`
+- `src/marketguard/universe.py`
+- `src/marketguard/adapters/base.py`
+- `src/marketguard/adapters/yahoo_finance.py`
 - `src/marketguard/normalization.py`
-- Converts source payload to canonical market and corporate-action schemas
-
-### 5) Pre-QC Ingestion Validation
 - `src/marketguard/validation.py`
-- Checks required fields, date validity, numeric OHLC, OHLC sanity, non-positive price rows, duplicate keys
-
-### 6) Persistence Layer
 - `src/marketguard/storage.py`
-- Raw snapshots (immutable run files)
-- Canonical upsert with rerun-safe deduplication
-- DuckDB tables: `canonical_market_data`, `canonical_corporate_actions`
-- Run metadata JSON persistence
-
-### 7) Pipeline Entrypoint
 - `src/marketguard/pipeline/eod_ingestion.py`
-- Runnable command:
-  - `PYTHONPATH=src python -m marketguard.pipeline.eod_ingestion --config configs/pipeline.yaml`
 
-## Storage Strategy (Stage 1)
+### Quality / Exceptions / Scoring
+- `src/marketguard/qc_engine.py` (rules R01–R12)
+- `src/marketguard/exception_manager.py` (OPEN/INVESTIGATING/RESOLVED/OVERRIDDEN ledger)
+- `src/marketguard/scoring_engine.py` (0–100 overall + 5 dimensions)
+- `src/marketguard/synthetic_validation.py` (controlled defect injection + detection metrics)
 
-- Raw source snapshots: Parquet
-- Canonical datasets: Parquet
-- Analytical querying layer: DuckDB
-- Metadata/audit trail (run-level): JSON
+### Reporting / Dashboard Outputs
+- `src/marketguard/reporting.py` (automated markdown quality report)
+- `src/marketguard/dashboard_prep.py` (dashboard parquet datasets)
+- `src/marketguard/pipeline/run_marketguard.py` (full orchestration)
 
-## Scope Boundary
+## Persistence
 
-Stage 1 intentionally excludes:
-- Full QC rule engine
-- Exception lifecycle workflow
-- DQ scoring model
-- Synthetic error framework
-- Dashboard/reporting layer
+- Raw snapshots: `data/raw/`
+- Canonical datasets: `data/processed/canonical/`
+- QC/scoring outputs: `data/processed/quality/`
+- Dashboard datasets: `data/processed/dashboard/`
+- Reports: `reports/generated/`
+- Analytical DB: `data/processed/marketguard.duckdb`
 
-These are planned for Stage 2+ and consume Stage 1 canonical outputs.
+## Automation
+
+- CLI full run:
+  - `PYTHONPATH=src python -m marketguard.pipeline.run_marketguard --config configs/pipeline.yaml [--run-ingestion]`
+- GitHub Actions workflow:
+  - `.github/workflows/marketguard_eod.yml`
+  - Includes test job + schedule/dispatch MarketGuard run job
+
+## Design Notes
+
+- Source reliability metrics represent observed behavior, not proof of absolute correctness.
+- Architecture keeps provider retrieval isolated from normalization/QC/scoring/reporting layers.

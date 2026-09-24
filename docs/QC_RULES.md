@@ -2,48 +2,42 @@
 
 ## Status
 
-QC rules are defined conceptually in the project specification.
+Implemented (R01–R12) in `src/marketguard/qc_engine.py`.
 
-Exact thresholds and implementation methodology are pending technical
-design and validation.
+## Rule Coverage
 
-## Required Rule Coverage
+| Rule ID | Rule | Dimension | Implemented Logic (Summary) |
+|---|---|---|---|
+| R01 | Invalid OHLC | validity | Flags rows where OHLC relationships are structurally impossible |
+| R02 | Non-positive price | validity | Flags rows with open/high/low/close <= 0 |
+| R03 | Missing required observation | completeness | Flags security dates missing vs market-level observed trading dates |
+| R04 | Extreme return anomaly | validity | Flags returns breaching absolute threshold and volatility-scaled threshold |
+| R05 | Potential corporate-action anomaly | consistency | Flags large return jumps without same-day split/dividend evidence |
+| R06 | Stale price | timeliness | Flags repeated close streaks >= configured stale-day threshold |
+| R07 | Cross-source price break | cross_source_consistency | Flags large close-price divergence across sources (when multi-source data exists) |
+| R08 | Missing trading day | completeness | Flags unusually large business-day gaps between observations |
+| R09 | Volume anomaly | consistency | Flags extreme volume z-scores vs rolling history |
+| R10 | Freshness breach | timeliness | Flags securities lagging global latest observation by configured business-day threshold |
+| R11 | Duplicate observation | consistency | Flags duplicate (security_id, observation_date, source) records |
+| R12 | Adjusted/unadjusted inconsistency | consistency | Flags large adjusted-vs-close divergence absent same-day action evidence |
 
-1. Invalid OHLC
-2. Non-positive price
-3. Missing observation
-4. Abnormal price movement
-5. Potential corporate-action anomaly
-6. Stale price
-7. Cross-source discrepancy
-8. Missing trading day
-9. Volume anomaly
-10. Freshness breach
-11. Duplicate observation
-12. Adjusted/unadjusted inconsistency
+## Severity Logic
 
-## Rule Design Principle
+- High-severity by default: R01, R02, R11
+- Other rules use magnitude-based severity bands:
+  - HIGH: magnitude >= 0.5
+  - MEDIUM: magnitude >= 0.2
+  - LOW: otherwise
 
-Each rule should be:
+## Evidence Model
 
-- Explainable
-- Deterministic where appropriate
-- Testable
-- Documented
-- Validated using controlled errors where practical
+Each exception carries serialized evidence fields relevant to the triggered rule (e.g., return, rolling volatility, business-gap, close pair, etc.) plus security/date/source identifiers.
 
-## Rule Documentation Requirement
+## Configuration
 
-Each implemented rule should document:
+Rule parameters currently use defaults in code (`DEFAULT_QC_PARAMS`), including thresholds for return, stale days, cross-source divergence, freshness lag, and adjusted-close discrepancy.
 
-- Rule ID
-- Rule name
-- Purpose
-- Logic
-- Required inputs
-- Thresholds
-- DQ dimension
-- Severity logic
-- Evidence generated
-- Known limitations
-- Validation results
+## Limitation Notes
+
+- R07 produces outputs only when canonical dataset includes >=2 sources for same security/date.
+- Corporate-action corroboration is evidence-based and does not automatically confirm true corporate-action events.
