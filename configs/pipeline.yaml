@@ -1,0 +1,16 @@
+source:
+  name: yahoo_finance
+
+runtime:
+  history_years: 5
+  end_date: null
+  request_sleep_seconds: 0.1
+
+paths:
+  universe_file: configs/security_universe.csv
+  raw_data_dir: data/raw
+  canonical_data_path: data/processed/canonical/canonical_market_data.parquet
+  actions_data_path: data/processed/canonical/canonical_corporate_actions.parquet
+  duckdb_path: data/processed/marketguard.duckdb
+  run_metadata_dir: data/processed/run_metadata
+  log_dir: logs

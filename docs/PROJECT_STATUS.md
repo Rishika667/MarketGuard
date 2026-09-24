@@ -2,89 +2,59 @@
 
 ## Current Stage
 
-Stage 0 — Specification and Repository Setup
+Integrated Build — Ingestion + QC + Exceptions + DQ Scoring + Synthetic Validation + Reporting + Dashboard Data Prep
 
 ## Overall Status
 
-IN PROGRESS
-
-## Project Phase
-
-Pre-implementation
+IN PROGRESS (major core implementation completed in this session)
 
 ## Completed
 
-- [x] MarketGuard project concept defined
-- [x] Business problem defined
-- [x] Project scope defined
-- [x] EOD operating model defined
-- [x] Data-quality dimensions defined
-- [x] QC control categories defined
-- [x] Exception workflow defined
-- [x] DQ scoring requirement defined
-- [x] Synthetic validation requirement defined
-- [x] Dashboard requirements defined
-- [x] Automation requirement defined
-- [x] Out-of-scope features defined
-- [x] AI development instructions created
-- [x] GitHub repository created
-- [x] Project specification created
+- [x] Reproducible 150-security universe (100 US + 50 IN)
+- [x] Config-driven ingestion architecture with adapter abstraction
+- [x] Yahoo Finance EOD OHLCV + corporate-action ingestion
+- [x] Raw immutable snapshot persistence (Parquet)
+- [x] Canonical market/corporate-action dataset generation (Parquet)
+- [x] DuckDB canonical table refresh
+- [x] Structured logging + ingestion run metadata
+- [x] Ingestion pre-QC structural validation
+- [x] QC rule engine R01-R12
+- [x] Exception generation with severity/evidence fields
+- [x] Exception lifecycle ledger (OPEN → INVESTIGATING → RESOLVED / OVERRIDDEN)
+- [x] DQ scoring (overall 0-100 + five dimensions)
+- [x] Synthetic defect-injection validation with detection metrics
+- [x] Automated markdown quality report generation
+- [x] Dashboard-ready parquet data outputs
+- [x] End-to-end orchestration command (`run_marketguard`)
+- [x] GitHub Actions automation workflow (tests + scheduled/manual run)
+- [x] Expanded tests for QC/exceptions/scoring/synthetic/full workflow
 
-## Not Yet Completed
+## Verification Results (This Session)
 
-- [ ] Technical data-source selection
-- [ ] Exact universe methodology
-- [ ] Exact QC thresholds
-- [ ] Exact DQ scoring formula
-- [ ] Technical implementation architecture
-- [ ] Data ingestion implementation
-- [ ] Normalization implementation
-- [ ] QC engine
-- [ ] Exception engine
-- [ ] Dashboard
-- [ ] Automated reporting
-- [ ] Automated execution
-- [ ] Validation framework
-- [ ] Final documentation
+- `pytest -q` → **9 passed**
+- Full workflow run command executed successfully:
+  - `PYTHONPATH=src python -m marketguard.pipeline.run_marketguard --config configs/pipeline.yaml`
+  - Produced QC, scoring, report, and dashboard output artifacts from real canonical data
 
-## Current Working Area
+## Current Runtime Snapshot
 
-Repository and documentation setup.
+Latest quality run summary (live canonical data):
 
-## Next Action
-
-Complete the remaining GitHub project setup, then begin the first
-GenSpark implementation stage.
-
-## Important Rule
-
-Do not rebuild completed work.
-
-Read:
-
-1. AGENTS.md
-2. docs/MARKETGUARD_SPEC.md
-3. docs/PROJECT_STATUS.md
-
-before making implementation changes.
+- Quality run ID: `Q20260922T200430Z`
+- Overall DQ score: `97.1929`
+- Exceptions generated: `23,434`
+- Exception ledger rows: `23,434`
 
 ## Known Limitations
 
-Technical implementation decisions have not yet been finalized.
+- Source-specific symbol availability can change over time (public/free source behavior).
+- Cross-source discrepancy rule (R07) requires multiple active sources for same observations; currently the default live source configuration is Yahoo-only.
+- Portfolio prototype remains non-institutional by design (public-source constraints).
 
-## GenSpark Credit Safety
+## Next Recommended Action
 
-All meaningful completed work must be saved to the repository.
-
-Before stopping a development session:
-
-- save completed work
-- run relevant tests
-- update this file
-- record incomplete work
-- record known issues
-- record the next action
-- commit completed work
+- Expand to second active source adapter for stronger live cross-source reconciliation coverage.
+- Build interactive Streamlit dashboard UI layer on top of prepared dashboard parquet datasets.
 
 ## Last Updated
 

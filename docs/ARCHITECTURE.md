@@ -1,36 +1,65 @@
 # MarketGuard — Architecture
 
-## Status
+## Current Implementation Status
 
-To be finalized during the technical design / implementation stage.
+Foundation + QC + Exceptions + DQ Scoring + Synthetic Validation + Reporting + Dashboard Data Prep
 
-## Target Logical Flow
+## End-to-End Flow
 
-EOD market-data sources
-→ ingestion
-→ raw data
+Configured source(s)
+→ ingestion adapters
+→ raw immutable snapshots
 → normalization
-→ canonical data
-→ quality controls
-→ reconciliation
-→ evidence
-→ severity
-→ exceptions
-→ DQ scoring
-→ persistence
-→ dashboard/reporting
+→ canonical market/corporate-action datasets
+→ QC engine (R01-R12)
+→ severity/evidence
+→ exceptions + lifecycle ledger
+→ DQ scoring (overall + dimensions)
+→ synthetic validation
+→ automated quality report
+→ dashboard-ready datasets
 
-## Technical Decisions Pending
+## Implemented Modules
 
-- Exact data sources
-- Exact storage implementation
-- Exact ingestion architecture
-- Exact normalization approach
-- Exact scheduling mechanism
-- Exact repository implementation structure
-- Exact deployment approach
+### Ingestion Foundation
+- `src/marketguard/config.py`
+- `src/marketguard/universe.py`
+- `src/marketguard/adapters/base.py`
+- `src/marketguard/adapters/yahoo_finance.py`
+- `src/marketguard/normalization.py`
+- `src/marketguard/validation.py`
+- `src/marketguard/storage.py`
+- `src/marketguard/pipeline/eod_ingestion.py`
 
-These decisions should be based on reproducibility, reliability,
-simplicity, cost and portfolio credibility.
+### Quality / Exceptions / Scoring
+- `src/marketguard/qc_engine.py` (rules R01–R12)
+- `src/marketguard/exception_manager.py` (OPEN/INVESTIGATING/RESOLVED/OVERRIDDEN ledger)
+- `src/marketguard/scoring_engine.py` (0–100 overall + 5 dimensions)
+- `src/marketguard/synthetic_validation.py` (controlled defect injection + detection metrics)
 
-Do not prematurely introduce unnecessary production infrastructure.
+### Reporting / Dashboard Outputs
+- `src/marketguard/reporting.py` (automated markdown quality report)
+- `src/marketguard/dashboard_prep.py` (dashboard parquet datasets)
+- `src/marketguard/pipeline/run_marketguard.py` (full orchestration)
+
+## Persistence
+
+- Raw snapshots: `data/raw/`
+- Canonical datasets: `data/processed/canonical/`
+- QC/scoring outputs: `data/processed/quality/`
+- Dashboard datasets: `data/processed/dashboard/`
+- Reports: `reports/generated/`
+- Analytical DB: `data/processed/marketguard.duckdb`
+
+## Automation
+
+- CLI full run:
+  - `PYTHONPATH=src python -m marketguard.pipeline.run_marketguard --config configs/pipeline.yaml [--run-ingestion]`
+- GitHub Actions workflow:
+  - `.github/workflows/marketguard_eod.yml`
+  - Includes test job + schedule/dispatch MarketGuard run job
+
+## Design Notes
+
+- Source reliability metrics represent observed behavior, not proof of absolute correctness.
+- Architecture keeps provider retrieval isolated from normalization/QC/scoring/reporting layers.
